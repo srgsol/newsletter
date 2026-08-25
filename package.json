@@ -1,0 +1,32 @@
+{
+  "name": "personal-newsletter",
+  "version": "0.1.0",
+  "description": "Personal newsletter automation: tracks blogs and YouTube channels via RSS, summarizes and ranks items with an LLM, and renders a Markdown edition.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/cli.js",
+    "newsletter": "npm run build --silent && node dist/cli.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "markdown-it": "^15.0.0",
+    "rss-parser": "^3.13.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

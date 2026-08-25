@@ -1,0 +1,28 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# secrets — copy .env.example to .env and fill in your key
+.env
+
+# local state (seen URLs, edition history, lock file)
+data/
+
+# generated editions — output, not source
+editions/
+
+# runtime logs
+*.log
+
+# personal watchlist — run `newsletter init` to scaffold your own
+config.yaml
+
+# editor and tooling local settings
+.claude/settings.local.json
+.pi/
+*.tmp
+*.tmp.*
+.pytest_cache/
+
+# internal planning notes
+PLAN.md
