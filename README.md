@@ -24,6 +24,8 @@ has one or more sources:
 - `blog` — the site's RSS/Atom feed url
 - `youtube` — the 24-char channel id (starts with `UC`), not the handle. Find
   it with `npm run newsletter -- resolve-channel @handle`.
+- `html` — a listing page on a site that has **no feed**, scraped with simple
+  CSS selectors (see below).
 
 ```yaml
 people:
@@ -35,6 +37,48 @@ people:
         url: https://simonwillison.net/atom/everything/
       - type: youtube
         channelId: UCXXXXXXXXXXXXXXXXXXXXXX
+```
+
+### Sites without a feed (`html`)
+
+Some sites publish no RSS. `html` fetches the listing page and reads each item
+out of the markup:
+
+```yaml
+  - id: anthropic-engineering
+    name: Anthropic Engineering
+    tags: [ai]
+    sources:
+      - type: html
+        url: https://www.anthropic.com/engineering   # the listing page
+        item: article        # selector for one item container (required)
+        title: h3            # default: h3
+        link: a              # default: a  (its href is the item url)
+        date: time           # default: time  (datetime attribute, else text)
+        description: .excerpt  # optional: summary/excerpt text for the LLM
+        urlPattern: ^https://www\.anthropic\.com/engineering/  # optional url filter
+```
+
+Selectors are a dependency-free subset of CSS: `tag`, `*`, `.class`, `#id`,
+`[attr]`, `[attr=value]`, and descendant combinators (whitespace). Items with
+no usable link or no parseable date are skipped, as is anything not matching
+`urlPattern` — use it to drop promo cards and off-site links that listing pages
+mix in. A date-only value like `2026-01-09` is read as local midnight.
+
+Fetching and inspecting a listing before writing the config:
+
+```bash
+curl -s https://www.anthropic.com/engineering | grep -o '<article' | wc -l
+npm run newsletter -- build --person anthropic-engineering --dry-run --verbose
+```
+
+**Backfilling:** a build only includes items inside the window (since the last
+run, or `lookbackDays`). A freshly added source whose posts are all older than
+that window reports nothing new — run it once with an explicit `--since` to
+pull the back catalogue:
+
+```bash
+npm run newsletter -- build --person anthropic-engineering --since 2026-01-01
 ```
 
 ## Usage

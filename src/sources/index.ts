@@ -1,5 +1,6 @@
 import type { Person, SourceConfig } from '../config.js';
 import { BlogSource } from './blog.js';
+import { HtmlSource } from './html.js';
 import { YoutubeSource } from './youtube.js';
 import type { Source } from './types.js';
 
@@ -11,6 +12,8 @@ export function buildSources(person: Person): Source[] {
         return new BlogSource(sc.url, person);
       case 'youtube':
         return new YoutubeSource(sc.channelId, person);
+      case 'html':
+        return new HtmlSource(sc, person);
     }
   });
 }

@@ -27,6 +27,10 @@ const INIT_TEMPLATE = `# Personal newsletter configuration — see README.md
 #   • blog: the site's RSS/Atom feed url
 #   • youtube: the 24-char channel id (starts with UC). Find it with:
 #       newsletter resolve-channel @handle
+#   • html: a listing page on a site with no feed, e.g.
+#       - type: html
+#         url: https://www.anthropic.com/engineering
+#         item: article       # title/link/date default to h3/a/time
 
 title: The Watchlist
 language: english
@@ -50,6 +54,9 @@ people:
         url: https://example.com/feed.xml
       # - type: youtube
       #   channelId: UCXXXXXXXXXXXXXXXXXXXXXX
+      # - type: html
+      #   url: https://www.anthropic.com/engineering
+      #   item: article
 `;
 
 program
@@ -146,7 +153,16 @@ people
     setVerbose(!!globals.verbose);
     const cfg = loadConfig(resolve(globals.config));
     for (const p of cfg.people) {
-      const sources = p.sources.map((s) => (s.type === 'blog' ? 'blog' : `youtube ${s.channelId.slice(0, 10)}…`));
+      const sources = p.sources.map((s) => {
+        switch (s.type) {
+          case 'blog':
+            return 'blog';
+          case 'youtube':
+            return `youtube ${s.channelId.slice(0, 10)}…`;
+          case 'html':
+            return `html ${s.url}`;
+        }
+      });
       logger.info(`${p.id}  ${p.name}  (${sources.join(', ')})`);
     }
   });

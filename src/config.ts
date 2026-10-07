@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { z } from 'zod';
+import { HTML_SELECTOR_DEFAULTS } from './sources/html.js';
 
 // --- schema ----------------------------------------------------------------
 
@@ -16,7 +17,29 @@ export const YoutubeSourceSchema = z.object({
     .regex(/^UC[\w-]{22}$/, 'youtube source needs a channel id (24 chars, UC-prefixed — not a handle)'),
 });
 
-export const SourceSchema = z.discriminatedUnion('type', [BlogSourceSchema, YoutubeSourceSchema]);
+export const HtmlSourceSchema = z.object({
+  type: z.literal('html'),
+  url: z.url('html source needs the listing page url'),
+  item: z.string().min(1, 'html source needs an item selector (e.g. "article")'),
+  title: z.string().min(1).default(HTML_SELECTOR_DEFAULTS.title),
+  link: z.string().min(1).default(HTML_SELECTOR_DEFAULTS.link),
+  date: z.string().min(1).default(HTML_SELECTOR_DEFAULTS.date),
+  description: z.string().min(1).optional(),
+  urlPattern: z
+    .string()
+    .min(1)
+    .refine((v) => {
+      try {
+        new RegExp(v);
+        return true;
+      } catch {
+        return false;
+      }
+    }, 'urlPattern must be a valid regular expression')
+    .optional(),
+});
+
+export const SourceSchema = z.discriminatedUnion('type', [BlogSourceSchema, YoutubeSourceSchema, HtmlSourceSchema]);
 
 export const PersonSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'person id must be lowercase alphanumeric with dashes'),

@@ -39,6 +39,62 @@ describe('ConfigSchema', () => {
     });
     expect(r.success).toBe(true);
   });
+
+  it('defaults the html source selectors', () => {
+    const cfg = ConfigSchema.parse({
+      people: [
+        {
+          id: 'anthropic-engineering',
+          name: 'Anthropic Engineering',
+          sources: [{ type: 'html', url: 'https://www.anthropic.com/engineering', item: 'article' }],
+        },
+      ],
+    });
+    expect(cfg.people[0]!.sources[0]).toEqual({
+      type: 'html',
+      url: 'https://www.anthropic.com/engineering',
+      item: 'article',
+      title: 'h3',
+      link: 'a',
+      date: 'time',
+    });
+  });
+
+  it('accepts a urlPattern on an html source and rejects an invalid regex', () => {
+    const ok = ConfigSchema.safeParse({
+      people: [
+        {
+          id: 'a',
+          name: 'A',
+          sources: [
+            { type: 'html', url: 'https://example.com/blog', item: 'article', urlPattern: '^https://example\\.com/' },
+          ],
+        },
+      ],
+    });
+    expect(ok.success).toBe(true);
+    const bad = ConfigSchema.safeParse({
+      people: [
+        {
+          id: 'a',
+          name: 'A',
+          sources: [{ type: 'html', url: 'https://example.com/blog', item: 'article', urlPattern: '[' }],
+        },
+      ],
+    });
+    expect(bad.success).toBe(false);
+  });
+
+  it('rejects an html source without an item selector or a valid url', () => {
+    const noItem = ConfigSchema.safeParse({
+      people: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'https://example.com/blog' }] }],
+    });
+    expect(noItem.success).toBe(false);
+    const badUrl = ConfigSchema.safeParse({
+      people: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'not-a-url', item: 'article' }] }],
+    });
+    expect(badUrl.success).toBe(false);
+  });
 });
 
 describe('resolveProvider', () => {

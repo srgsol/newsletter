@@ -1,5 +1,38 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **`html` source** — follows sites that publish no feed (e.g. Anthropic
+  Engineering) by reading their listing page. `src/sources/html.ts` is a
+  dependency-free extractor over a small CSS subset (`tag`, `*`, `.class`,
+  `#id`, `[attr]`, `[attr=value]`, descendant combinators) with `item`,
+  `title`, `link`, `date`, optional `description` and optional `urlPattern`
+  keys in the config. Items without a usable link or a parseable date are
+  skipped; date-only values are read as local midnight so they don't shift a
+  day in negative-offset timezones.
+- **Backfill note in the README** — a newly added source whose posts are all
+  older than the lookback window reports nothing new; `--since` pulls the back
+  catalogue once.
+
+### Verified
+
+- Typecheck clean; 47/47 tests passing (13 new: extraction, entity decoding,
+  script/style stripping, custom + descendant selectors, urlPattern, date
+  fallback, HTTP failure, config validation).
+- Live against https://www.anthropic.com/engineering: 25 items parsed with real
+  titles, urls and publish dates (2024-09-18 … 2026-04-23); dry run with
+  `--since 2025-01-01 --person anthropic-engineering` reported 22 new items.
+
+### Fixed (found during live verification)
+
+- The listing page mixes an off-site promo `<article>`
+  (`https://platform.claude.com/`) into the real posts, which produced a bogus
+  item and a duplicate title — `urlPattern` filters it out.
+- An ISO date-only `datetime` (`2026-01-09`) parsed as UTC midnight and could
+  fall out of the window in positive-offset timezones; it is now local.
+
 ## 0.1.0 — 2026-08-21
 
 Initial release: the full v1 of the personal newsletter automation.
