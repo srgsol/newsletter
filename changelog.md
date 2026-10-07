@@ -50,6 +50,12 @@ must be updated.
 
 ### Fixed (found during live verification)
 
+- `newsletter_build --dry-run` always reported "no new items — nothing written"
+  on its second line, even when it had found items, because a dry run never
+  returns an `editionFile` and the message was keyed off that. It now reports
+  `would write editions/YYYY-MM-DD.md` when the preview is non-empty, and says
+  "nothing to write" only when there is genuinely nothing. Cosmetic only — the
+  counts above it and the pipeline itself were always correct.
 - The listing page mixes an off-site promo `<article>`
   (`https://platform.claude.com/`) into the real posts, which produced a bogus
   item and a duplicate title — `urlPattern` filters it out.

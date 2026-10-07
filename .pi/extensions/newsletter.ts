@@ -143,7 +143,7 @@ export default function newsletterExtension(pi: ExtensionAPI) {
       const root = getProjectRoot(ctx);
       onUpdate?.({ content: [{ type: "text", text: "Building newsletter edition…" }], details: {} });
 
-      const [{ runPipeline }, { loadConfig }, { createSummarizer }, { daysAgo, toDate }] = await Promise.all([
+      const [{ runPipeline }, { loadConfig }, { createSummarizer }, { daysAgo, formatDate, toDate }] = await Promise.all([
         importDist(root, pi, "pipeline.js"),
         importDist(root, pi, "config.js"),
         importDist(root, pi, "ai/index.js"),
@@ -181,11 +181,18 @@ export default function newsletterExtension(pi: ExtensionAPI) {
         signal,
       )) as BuildResult;
 
-      const lines = [
-        `fetched ${result.fetched} · new ${result.newItems}`,
-        result.editionFile ? `wrote ${result.editionFile}` : "no new items — nothing written",
-      ];
-      if (params.dryRun) lines.push("(dry run: no AI, no writes, no state changes)");
+      // A dry run never returns an editionFile, so it needs its own wording —
+      // otherwise a preview with new items would claim nothing was found.
+      const lines = [`fetched ${result.fetched} · new ${result.newItems}`];
+      if (params.dryRun) {
+        lines.push(
+          result.newItems > 0
+            ? `would write editions/${formatDate(new Date())}.md (dry run: no AI, no writes, no state changes)`
+            : "no new items — nothing to write (dry run: no AI, no writes, no state changes)",
+        );
+      } else {
+        lines.push(result.editionFile ? `wrote ${result.editionFile}` : "no new items — nothing written");
+      }
       return {
         content: [{ type: "text", text: lines.join("\n") }],
         details: { ...result, windowStart: since?.toISOString() ?? null },
