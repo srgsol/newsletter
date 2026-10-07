@@ -48,8 +48,8 @@ export class OpenAICompatibleSummarizer implements Summarizer {
     const payload = items.map((it) => ({
       url: it.url,
       type: it.type,
-      person: it.personName,
-      tags: it.personTags,
+      feed: it.feedName,
+      tags: it.feedTags,
       publishedAt: it.publishedAt.toISOString().slice(0, 10),
       title: it.title,
       description: it.description.slice(0, MAX_DESC_CHARS),
@@ -168,13 +168,13 @@ export function mergeResults(items: RawItem[], parsed: AiItem[]): SummarizedItem
 
 function systemPrompt(language: string): string {
   return [
-    'You are the curation assistant for a personal newsletter that tracks the recent activity of a small list of people the reader follows.',
+    'You are the curation assistant for a personal newsletter that tracks the recent activity of the people, blogs and publications the reader follows.',
     `Respond ONLY with a JSON object, written in ${language}.`,
-    'You receive a JSON array of items, each from a blog or YouTube channel, with a title, a short description, the person who published it, and their topic tags.',
+    'You receive a JSON array of items, each from a blog, a YouTube channel or a listing page, with a title, a short description, the feed it came from, and that feed\'s topic tags.',
     'For EVERY item, return an object with these fields:',
     '- "url": the exact url of the item, unchanged',
     `- "summary": a 2-3 sentence summary of the item, in ${language}, factual and neutral, based only on title and description`,
-    `- "why": one short sentence in ${language} on why this item might matter to someone following this person, informed by their tags`,
+    `- "why": one short sentence in ${language} on why this item might matter to someone following this feed, informed by its tags`,
     '- "score": an integer from 1 to 10 rating how notable or interesting the item is',
     '- "isDuplicateOf": null, or the url of ANOTHER item in this batch that covers the same news or story (cross-posts, video + blog post about the same thing). Prefer keeping the more detailed item and pointing the other at it. Only mark near-identical coverage.',
     'The response must be exactly: {"items": [ ... one object per input item, in the same order ... ]}',

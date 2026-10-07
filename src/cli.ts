@@ -15,7 +15,7 @@ const program = new Command();
 
 program
   .name('newsletter')
-  .description('Personal newsletter: fetch RSS activity, summarize with an LLM, render a Markdown edition')
+  .description('Personal newsletter: fetch feeds, summarize with an LLM, render a Markdown edition')
   .version('0.1.0')
   .option('-c, --config <path>', 'path to config.yaml', 'config.yaml')
   .option('--verbose', 'verbose logging');
@@ -23,7 +23,7 @@ program
 // --- init ------------------------------------------------------------------
 
 const INIT_TEMPLATE = `# Personal newsletter configuration — see README.md
-# Replace the example person below with the people you follow.
+# Replace the example feed below with the feeds you follow.
 #   • blog: the site's RSS/Atom feed url
 #   • youtube: the 24-char channel id (starts with UC). Find it with:
 #       newsletter resolve-channel @handle
@@ -43,11 +43,11 @@ provider: deepseek
 maxItemsPerRun: 20
 lookbackDays: 7
 edition:
-  groupBy: ranked                    # ranked | person | type
+  groupBy: ranked                    # ranked | feed | type
 
-people:
+feeds:
   - id: example
-    name: Example Person
+    name: Example Feed
     tags: [ai, web]                  # used by the LLM for relevance
     sources:
       - type: blog
@@ -69,7 +69,7 @@ program
     }
     writeFileSync(configPath, INIT_TEMPLATE);
     logger.info(`wrote ${configPath}`);
-    logger.info('next: edit it with your people, copy .env.example to .env, then run `newsletter build`');
+    logger.info('next: edit it with your feeds, copy .env.example to .env, then run `newsletter build`');
   });
 
 // --- build -----------------------------------------------------------------
@@ -78,7 +78,7 @@ interface BuildFlags {
   days?: string;
   since?: string;
   maxItems?: string;
-  person?: string;
+  feed?: string;
   dryRun?: boolean;
   skipAi?: boolean;
   provider?: string;
@@ -91,7 +91,7 @@ program
   .option('--days <n>', 'look back n days instead of since the last run')
   .option('--since <iso-date>', 'only include items published on/after this date')
   .option('--max-items <n>', 'cap the edition size (default: config maxItemsPerRun)')
-  .option('--person <id>', 'only fetch this person (config id)')
+  .option('--feed <id>', 'only fetch this feed (config id)')
   .option('--dry-run', 'fetch and report without AI, writes, or state changes')
   .option('--skip-ai', 'build the edition with titles and links only')
   .option('--provider <id>', 'override the provider for this run (deepseek | openai | ollama)')
@@ -134,26 +134,26 @@ program
       summarizer,
       since,
       maxItems,
-      personId: flags.person,
+      feedId: flags.feed,
       dryRun: !!flags.dryRun,
       html: !!flags.html,
     });
     if (result.editionFile) logger.info(`wrote ${result.editionFile}`);
   });
 
-// --- people ----------------------------------------------------------------
+// --- feeds ----------------------------------------------------------------
 
-const people = program.command('people').description('manage the people in the config');
+const feeds = program.command('feeds').description('manage the feeds in the config');
 
-people
+feeds
   .command('list')
-  .description('list the people in the config')
+  .description('list the feeds in the config')
   .action(() => {
     const globals = program.opts() as { config: string; verbose?: boolean };
     setVerbose(!!globals.verbose);
     const cfg = loadConfig(resolve(globals.config));
-    for (const p of cfg.people) {
-      const sources = p.sources.map((s) => {
+    for (const feed of cfg.feeds) {
+      const sources = feed.sources.map((s) => {
         switch (s.type) {
           case 'blog':
             return 'blog';
@@ -163,13 +163,13 @@ people
             return `html ${s.url}`;
         }
       });
-      logger.info(`${p.id}  ${p.name}  (${sources.join(', ')})`);
+      logger.info(`${feed.id}  ${feed.name}  (${sources.join(', ')})`);
     }
   });
 
-people
+feeds
   .command('add')
-  .description('add a person to the config')
+  .description('add a feed to the config')
   .requiredOption('--id <id>', 'lowercase id (e.g. simon)')
   .requiredOption('--name <name>', 'display name')
   .option('--blog <url>', 'RSS/Atom feed url')
@@ -179,8 +179,8 @@ people
     setVerbose(!!globals.verbose);
     const configPath = resolve(globals.config);
     const cfg = loadConfig(configPath);
-    if (cfg.people.some((p) => p.id === flags.id)) {
-      throw new Error(`a person with id '${flags.id}' already exists`);
+    if (cfg.feeds.some((feed) => feed.id === flags.id)) {
+      throw new Error(`a feed with id '${flags.id}' already exists`);
     }
     if (!flags.blog && !flags.youtube) {
       throw new Error('provide at least one of --blog or --youtube');
@@ -188,15 +188,15 @@ people
     if (flags.youtube && !isChannelId(flags.youtube)) {
       throw new Error(`'${flags.youtube}' is not a valid channel id — find it with \`newsletter resolve-channel @handle\``);
     }
-    const sources: Config['people'][number]['sources'] = [];
+    const sources: Config['feeds'][number]['sources'] = [];
     if (flags.blog) sources.push({ type: 'blog', url: flags.blog });
     if (flags.youtube) sources.push({ type: 'youtube', channelId: flags.youtube });
-    cfg.people.push({ id: flags.id, name: flags.name, tags: [], sources });
+    cfg.feeds.push({ id: flags.id, name: flags.name, tags: [], sources });
     saveConfig(configPath, cfg);
     logger.info(`added '${flags.id}' (${flags.name}) to ${configPath}`);
   });
 
-people
+feeds
   .command('edit')
   .description('open the config in $EDITOR')
   .action(() => {

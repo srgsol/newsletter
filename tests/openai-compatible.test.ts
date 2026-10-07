@@ -12,9 +12,9 @@ const item = (url: string): RawItem => ({
   description: 'some description',
   publishedAt: new Date('2026-08-20T12:00:00Z'),
   type: 'blog',
-  personId: 'p',
-  personName: 'Person',
-  personTags: ['ai'],
+  feedId: 'p',
+  feedName: 'Feed',
+  feedTags: ['ai'],
 });
 
 const jsonResponse = (content: unknown, status = 200) =>

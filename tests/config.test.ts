@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { ConfigSchema, getApiKey, resolveProvider } from '../src/config.js';
 
 const MINIMAL = {
-  people: [{ id: 'simon', name: 'Simon', sources: [{ type: 'blog', url: 'https://example.com/feed.xml' }] }],
+  feeds: [{ id: 'simon', name: 'Simon', sources: [{ type: 'blog', url: 'https://example.com/feed.xml' }] }],
 };
 
 describe('ConfigSchema', () => {
@@ -14,35 +14,35 @@ describe('ConfigSchema', () => {
     expect(cfg.maxItemsPerRun).toBe(20);
     expect(cfg.lookbackDays).toBe(7);
     expect(cfg.edition.groupBy).toBe('ranked');
-    expect(cfg.people[0]!.tags).toEqual([]);
+    expect(cfg.feeds[0]!.tags).toEqual([]);
   });
 
-  it('rejects a config without people', () => {
+  it('rejects a config without feeds', () => {
     expect(ConfigSchema.safeParse({}).success).toBe(false);
   });
 
-  it('rejects a person without sources', () => {
-    const r = ConfigSchema.safeParse({ people: [{ id: 'a', name: 'A', sources: [] }] });
+  it('rejects a feed without sources', () => {
+    const r = ConfigSchema.safeParse({ feeds: [{ id: 'a', name: 'A', sources: [] }] });
     expect(r.success).toBe(false);
   });
 
   it('rejects a non-UC youtube channel id', () => {
     const r = ConfigSchema.safeParse({
-      people: [{ id: 'a', name: 'A', sources: [{ type: 'youtube', channelId: '@somehandle' }] }],
+      feeds: [{ id: 'a', name: 'A', sources: [{ type: 'youtube', channelId: '@somehandle' }] }],
     });
     expect(r.success).toBe(false);
   });
 
   it('accepts a valid youtube channel id', () => {
     const r = ConfigSchema.safeParse({
-      people: [{ id: 'a', name: 'A', sources: [{ type: 'youtube', channelId: `UC${'a'.repeat(22)}` }] }],
+      feeds: [{ id: 'a', name: 'A', sources: [{ type: 'youtube', channelId: `UC${'a'.repeat(22)}` }] }],
     });
     expect(r.success).toBe(true);
   });
 
   it('defaults the html source selectors', () => {
     const cfg = ConfigSchema.parse({
-      people: [
+      feeds: [
         {
           id: 'anthropic-engineering',
           name: 'Anthropic Engineering',
@@ -50,7 +50,7 @@ describe('ConfigSchema', () => {
         },
       ],
     });
-    expect(cfg.people[0]!.sources[0]).toEqual({
+    expect(cfg.feeds[0]!.sources[0]).toEqual({
       type: 'html',
       url: 'https://www.anthropic.com/engineering',
       item: 'article',
@@ -62,7 +62,7 @@ describe('ConfigSchema', () => {
 
   it('accepts a urlPattern on an html source and rejects an invalid regex', () => {
     const ok = ConfigSchema.safeParse({
-      people: [
+      feeds: [
         {
           id: 'a',
           name: 'A',
@@ -74,7 +74,7 @@ describe('ConfigSchema', () => {
     });
     expect(ok.success).toBe(true);
     const bad = ConfigSchema.safeParse({
-      people: [
+      feeds: [
         {
           id: 'a',
           name: 'A',
@@ -87,11 +87,11 @@ describe('ConfigSchema', () => {
 
   it('rejects an html source without an item selector or a valid url', () => {
     const noItem = ConfigSchema.safeParse({
-      people: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'https://example.com/blog' }] }],
+      feeds: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'https://example.com/blog' }] }],
     });
     expect(noItem.success).toBe(false);
     const badUrl = ConfigSchema.safeParse({
-      people: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'not-a-url', item: 'article' }] }],
+      feeds: [{ id: 'a', name: 'A', sources: [{ type: 'html', url: 'not-a-url', item: 'article' }] }],
     });
     expect(badUrl.success).toBe(false);
   });

@@ -4,7 +4,7 @@ import { renderMarkdown, type RenderInput } from '../src/render/markdown.js';
 
 const cfg = ConfigSchema.parse({
   title: 'The Watchlist',
-  people: [{ id: 'alice', name: 'Alice', sources: [{ type: 'blog', url: 'https://example.com/feed' }] }],
+  feeds: [{ id: 'alice', name: 'Alice', sources: [{ type: 'blog', url: 'https://example.com/feed' }] }],
 });
 
 const baseInput: RenderInput = {
@@ -19,9 +19,9 @@ const baseInput: RenderInput = {
         description: '',
         publishedAt: new Date(2026, 7, 20, 12, 0, 0),
         type: 'blog',
-        personId: 'alice',
-        personName: 'Alice',
-        personTags: [],
+        feedId: 'alice',
+        feedName: 'Alice',
+        feedTags: [],
       },
       summary: 'Summary of A.',
       why: 'because A.',
@@ -34,9 +34,9 @@ const baseInput: RenderInput = {
         description: '',
         publishedAt: new Date(2026, 7, 19, 12, 0, 0),
         type: 'youtube',
-        personId: 'bob',
-        personName: 'Bob',
-        personTags: [],
+        feedId: 'bob',
+        feedName: 'Bob',
+        feedTags: [],
       },
       summary: null,
       why: null,
@@ -73,9 +73,9 @@ describe('renderMarkdown', () => {
     );
   });
 
-  it('groups by person when configured', () => {
-    const byPerson = ConfigSchema.parse({ ...cfg, edition: { groupBy: 'person' } });
-    const md = renderMarkdown(byPerson, baseInput);
+  it('groups by feed when configured', () => {
+    const byFeed = ConfigSchema.parse({ ...cfg, edition: { groupBy: 'feed' } });
+    const md = renderMarkdown(byFeed, baseInput);
     expect(md).toContain('## Alice');
     expect(md).toContain('## Bob');
     // numbering restarts per section: both sections start at 1

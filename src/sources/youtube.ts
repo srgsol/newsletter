@@ -14,7 +14,7 @@ export function isChannelId(v: string): boolean {
 export class YoutubeSource implements Source {
   constructor(
     private readonly channelId: string,
-    private readonly person: { id: string; name: string; tags: string[] },
+    private readonly feed: { id: string; name: string; tags: string[] },
   ) {}
 
   get label(): string {
@@ -29,9 +29,9 @@ export class YoutubeSource implements Source {
       description: it.description,
       publishedAt: it.publishedAt,
       type: 'youtube' as const,
-      personId: this.person.id,
-      personName: this.person.name,
-      personTags: this.person.tags,
+      feedId: this.feed.id,
+      feedName: this.feed.name,
+      feedTags: this.feed.tags,
     }));
   }
 }

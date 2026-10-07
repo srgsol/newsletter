@@ -6,13 +6,13 @@ export interface RawItem {
   description: string;
   publishedAt: Date;
   type: ItemType;
-  personId: string;
-  personName: string;
-  personTags: string[];
+  feedId: string;
+  feedName: string;
+  feedTags: string[];
 }
 
 /**
- * A source of items for one person (a blog feed, a YouTube channel, later X or
+ * A source of items for one feed (a blog feed, a YouTube channel, later X or
  * LinkedIn). The pipeline only depends on this interface, so new platforms are
  * added as implementations, never as pipeline changes.
  */

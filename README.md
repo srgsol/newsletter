@@ -1,9 +1,9 @@
 # Personal Newsletter
 
-Tracks the online activity of people you follow (blogs and YouTube channels via
-RSS), summarizes and ranks new items with an LLM, and renders one Markdown
-edition per run into `editions/`. Runs on demand from the CLI; safe to schedule
-with cron or a systemd timer later.
+Tracks the online activity of the feeds you follow — blogs and YouTube channels
+via RSS, plus feed-less sites scraped as HTML — summarizes and ranks new items
+with an LLM, and renders one Markdown edition per run into `editions/`. Runs on
+demand from the CLI; safe to schedule with cron or a systemd timer later.
 
 ## Setup
 
@@ -18,8 +18,8 @@ gitignored, since one holds your API key and the other your personal
 watchlist. `init` scaffolds a starter `config.yaml` and never overwrites an
 existing one.
 
-Edit `config.yaml`: replace the example person with your people. Each person
-has one or more sources:
+Edit `config.yaml`: replace the example feed with the feeds you follow. Each
+feed has one or more sources:
 
 - `blog` — the site's RSS/Atom feed url
 - `youtube` — the 24-char channel id (starts with `UC`), not the handle. Find
@@ -28,7 +28,7 @@ has one or more sources:
   CSS selectors (see below).
 
 ```yaml
-people:
+feeds:
   - id: simon
     name: Simon Willison
     tags: [ai, python]      # passed to the LLM for relevance scoring
@@ -69,7 +69,7 @@ Fetching and inspecting a listing before writing the config:
 
 ```bash
 curl -s https://www.anthropic.com/engineering | grep -o '<article' | wc -l
-npm run newsletter -- build --person anthropic-engineering --dry-run --verbose
+npm run newsletter -- build --feed anthropic-engineering --dry-run --verbose
 ```
 
 **Backfilling:** a build only includes items inside the window (since the last
@@ -78,7 +78,7 @@ that window reports nothing new — run it once with an explicit `--since` to
 pull the back catalogue:
 
 ```bash
-npm run newsletter -- build --person anthropic-engineering --since 2026-01-01
+npm run newsletter -- build --feed anthropic-engineering --since 2026-01-01
 ```
 
 ## Usage
@@ -88,8 +88,8 @@ npm run newsletter -- build              # full run: fetch → summarize → ran
 npm run newsletter -- build --dry-run    # fetch + report, no AI, no writes
 npm run newsletter -- build --skip-ai    # edition with titles and links only
 npm run newsletter -- build --days 7 --max-items 20
-npm run newsletter -- build --person simon --html
-npm run newsletter -- people list | people add | people edit
+npm run newsletter -- build --feed simon --html
+npm run newsletter -- feeds list | feeds add | feeds edit
 npm run newsletter -- feed-check <feed-url-or-channel-id>
 npm run newsletter -- resolve-channel <handle-or-url>
 ```

@@ -4,7 +4,7 @@ import type { RawItem, Source } from './types.js';
 export class BlogSource implements Source {
   constructor(
     private readonly feedUrl: string,
-    private readonly person: { id: string; name: string; tags: string[] },
+    private readonly feed: { id: string; name: string; tags: string[] },
   ) {}
 
   get label(): string {
@@ -19,9 +19,9 @@ export class BlogSource implements Source {
       description: it.description,
       publishedAt: it.publishedAt,
       type: 'blog' as const,
-      personId: this.person.id,
-      personName: this.person.name,
-      personTags: this.person.tags,
+      feedId: this.feed.id,
+      feedName: this.feed.name,
+      feedTags: this.feed.tags,
     }));
   }
 }

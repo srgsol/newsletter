@@ -96,7 +96,7 @@ describe('parseHtmlItems', () => {
 });
 
 describe('HtmlSource', () => {
-  const person = { id: 'anthropic-engineering', name: 'Anthropic Engineering', tags: ['ai'] };
+  const feed = { id: 'anthropic-engineering', name: 'Anthropic Engineering', tags: ['ai'] };
 
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -106,7 +106,7 @@ describe('HtmlSource', () => {
     const fetchMock = vi.fn(async () => new Response(LISTING, { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    const source = new HtmlSource(ANTHROPIC_SELECTORS, person);
+    const source = new HtmlSource(ANTHROPIC_SELECTORS, feed);
     const items = await source.fetch();
 
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -114,9 +114,9 @@ describe('HtmlSource', () => {
     expect(items[0]).toMatchObject({
       url: 'https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents',
       type: 'blog',
-      personId: 'anthropic-engineering',
-      personName: 'Anthropic Engineering',
-      personTags: ['ai'],
+      feedId: 'anthropic-engineering',
+      feedName: 'Anthropic Engineering',
+      feedTags: ['ai'],
       description: '',
     });
     expect(source.label).toBe(`html:${PAGE_URL}`);
@@ -124,6 +124,6 @@ describe('HtmlSource', () => {
 
   it('throws on a non-ok response', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('nope', { status: 503 })));
-    await expect(new HtmlSource(ANTHROPIC_SELECTORS, person).fetch()).rejects.toThrow(/HTTP 503/);
+    await expect(new HtmlSource(ANTHROPIC_SELECTORS, feed).fetch()).rejects.toThrow(/HTTP 503/);
   });
 });

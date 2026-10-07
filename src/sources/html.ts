@@ -294,7 +294,7 @@ export async function fetchHtml(url: string): Promise<string> {
 export class HtmlSource implements Source {
   constructor(
     private readonly selectors: HtmlSelectors,
-    private readonly person: { id: string; name: string; tags: string[] },
+    private readonly feed: { id: string; name: string; tags: string[] },
   ) {}
 
   get label(): string {
@@ -309,9 +309,9 @@ export class HtmlSource implements Source {
       description: it.description,
       publishedAt: it.publishedAt,
       type: 'blog' as const,
-      personId: this.person.id,
-      personName: this.person.name,
-      personTags: this.person.tags,
+      feedId: this.feed.id,
+      feedName: this.feed.name,
+      feedTags: this.feed.tags,
     }));
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "personal-newsletter",
   "version": "0.1.0",
-  "description": "Personal newsletter automation: tracks blogs and YouTube channels via RSS, summarizes and ranks items with an LLM, and renders a Markdown edition.",
+  "description": "Personal newsletter automation: tracks blogs, YouTube channels and feed-less listing pages, summarizes and ranks items with an LLM, and renders a Markdown edition.",
   "type": "module",
   "private": true,
   "engines": {

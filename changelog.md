@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Changed (breaking) — `person` → `feed`
+
+The tracking unit is no longer assumed to be a human, now that sites are
+followed too. No aliases: the old names are gone, so an existing `config.yaml`
+must be updated.
+
+- `config.yaml`: `people:` → `feeds:`; `edition.groupBy: person` → `groupBy: feed`.
+- Types: `PersonSchema`/`Person` → `FeedSchema`/`Feed`;
+  `RawItem.personId/personName/personTags` → `feedId/feedName/feedTags`;
+  `BuildOptions.personId` → `feedId`.
+- CLI: `--person` → `--feed`; `people list|add|edit` → `feeds list|add|edit`.
+- LLM prompt: describes following "people, blogs and publications" instead of
+  "a small list of people"; the request payload's `person` key is now `feed`.
+- `state.json`, `editions/` and the pipeline's behaviour are unchanged — state
+  keys are URLs, so no migration is needed.
+
 ### Added
 
 - **`html` source** — follows sites that publish no feed (e.g. Anthropic

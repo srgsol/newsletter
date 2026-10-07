@@ -49,21 +49,21 @@ interface Group {
   items: EditionItem[];
 }
 
-function groupItems(groupBy: 'ranked' | 'person' | 'type', items: EditionItem[]): Group[] {
+function groupItems(groupBy: 'ranked' | 'feed' | 'type', items: EditionItem[]): Group[] {
   if (groupBy === 'ranked') {
     return [{ heading: '', items }];
   }
-  if (groupBy === 'person') {
+  if (groupBy === 'feed') {
     const order: string[] = [];
-    const byPerson = new Map<string, EditionItem[]>();
+    const byFeed = new Map<string, EditionItem[]>();
     for (const it of items) {
-      if (!byPerson.has(it.item.personName)) {
-        byPerson.set(it.item.personName, []);
-        order.push(it.item.personName);
+      if (!byFeed.has(it.item.feedName)) {
+        byFeed.set(it.item.feedName, []);
+        order.push(it.item.feedName);
       }
-      byPerson.get(it.item.personName)!.push(it);
+      byFeed.get(it.item.feedName)!.push(it);
     }
-    return order.map((name) => ({ heading: name, items: byPerson.get(name)! }));
+    return order.map((name) => ({ heading: name, items: byFeed.get(name)! }));
   }
   // type
   return (['youtube', 'blog'] as const)
@@ -84,7 +84,7 @@ function renderItem(
   const badge = it.item.type === 'youtube' ? 'YouTube' : 'Blog';
   const lines = [
     `### ${rank}. [${esc(it.item.title)}](${it.item.url})`,
-    `\`[${badge}]\` · ${esc(it.item.personName)} · ${formatDate(it.item.publishedAt)}`,
+    `\`[${badge}]\` · ${esc(it.item.feedName)} · ${formatDate(it.item.publishedAt)}`,
   ];
   if (it.summary) lines.push('', it.summary);
   if (it.why) lines.push('', `*Why it matters:* ${it.why}`);

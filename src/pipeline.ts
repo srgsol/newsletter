@@ -19,7 +19,7 @@ export interface BuildOptions {
   /** explicit window start (--days / --since); defaults to since the last run */
   since?: Date;
   maxItems?: number;
-  personId?: string;
+  feedId?: string;
   dryRun: boolean;
   html: boolean;
 }
@@ -98,15 +98,17 @@ export async function runPipeline(opts: BuildOptions): Promise<BuildResult> {
   const state = store.load();
   const windowStart = opts.since ?? computeWindowStart(state, opts.config.lookbackDays);
 
-  const people = opts.personId
-    ? opts.config.people.filter((p) => p.id === opts.personId)
-    : opts.config.people;
-  if (people.length === 0) {
-    throw new Error(`no person with id '${opts.personId}' in config`);
+  const feeds = opts.feedId
+    ? opts.config.feeds.filter((feed) => feed.id === opts.feedId)
+    : opts.config.feeds;
+  if (feeds.length === 0) {
+    throw new Error(`no feed with id '${opts.feedId}' in config`);
   }
 
   // Fetch every source in parallel, isolating failures per source.
-  const jobs = people.flatMap((p) => buildSources(p).map((s) => ({ label: `${p.id}/${s.label}`, source: s })));
+  const jobs = feeds.flatMap((feed) =>
+    buildSources(feed).map((s) => ({ label: `${feed.id}/${s.label}`, source: s })),
+  );
   const settled = await Promise.allSettled(jobs.map((j) => j.source.fetch()));
   const raw: RawItem[] = [];
   settled.forEach((r, i) => {
@@ -150,7 +152,7 @@ export async function runPipeline(opts: BuildOptions): Promise<BuildResult> {
         `(${kept.length} after dedupe, ${editionItems.length} after cap ${cap})`,
     );
     for (const it of editionItems) {
-      logger.info(`  ${it.score > 0 ? `${it.score}/10` : 'n/a'}  [${it.item.type}] ${it.item.title} — ${it.item.personName}`);
+      logger.info(`  ${it.score > 0 ? `${it.score}/10` : 'n/a'}  [${it.item.type}] ${it.item.title} — ${it.item.feedName}`);
     }
     return { fetched: raw.length, newItems: fresh.length, editionFile: null };
   }

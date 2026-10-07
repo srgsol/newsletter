@@ -41,11 +41,11 @@ export const HtmlSourceSchema = z.object({
 
 export const SourceSchema = z.discriminatedUnion('type', [BlogSourceSchema, YoutubeSourceSchema, HtmlSourceSchema]);
 
-export const PersonSchema = z.object({
-  id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'person id must be lowercase alphanumeric with dashes'),
+export const FeedSchema = z.object({
+  id: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'feed id must be lowercase alphanumeric with dashes'),
   name: z.string().min(1),
   tags: z.array(z.string()).default([]),
-  sources: z.array(SourceSchema).min(1, 'person must have at least one source'),
+  sources: z.array(SourceSchema).min(1, 'feed must have at least one source'),
 });
 
 export const ConfigSchema = z.object({
@@ -58,14 +58,14 @@ export const ConfigSchema = z.object({
   lookbackDays: z.number().int().positive().default(7),
   edition: z
     .object({
-      groupBy: z.enum(['ranked', 'person', 'type']).default('ranked'),
+      groupBy: z.enum(['ranked', 'feed', 'type']).default('ranked'),
     })
     .default(() => ({ groupBy: 'ranked' as const })),
-  people: z.array(PersonSchema).min(1, 'config must define at least one person'),
+  feeds: z.array(FeedSchema).min(1, 'config must define at least one feed'),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
-export type Person = z.infer<typeof PersonSchema>;
+export type Feed = z.infer<typeof FeedSchema>;
 export type SourceConfig = z.infer<typeof SourceSchema>;
 
 // --- provider registry -----------------------------------------------------

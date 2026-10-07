@@ -12,9 +12,9 @@ function item(url: string, publishedAt: Date): RawItem {
     description: '',
     publishedAt,
     type: 'blog',
-    personId: 'p',
-    personName: 'Person',
-    personTags: [],
+    feedId: 'p',
+    feedName: 'Feed',
+    feedTags: [],
   };
 }
 
