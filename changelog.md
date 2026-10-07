@@ -13,6 +13,10 @@ must be updated.
   `RawItem.personId/personName/personTags` → `feedId/feedName/feedTags`;
   `BuildOptions.personId` → `feedId`.
 - CLI: `--person` → `--feed`; `people list|add|edit` → `feeds list|add|edit`.
+- Extension: `newsletter_people` → `newsletter_feeds` (with `feed` instead of
+  `person`, and `html`/`item` arguments for feed-less sites, which the old tool
+  could not add at all). The tool also had a latent bug where a `youtube` label
+  was printed for any non-blog source.
 - LLM prompt: describes following "people, blogs and publications" instead of
   "a small list of people"; the request payload's `person` key is now `feed`.
 - `state.json`, `editions/` and the pipeline's behaviour are unchanged — state
@@ -20,6 +24,9 @@ must be updated.
 
 ### Added
 
+- **pi extension tracked in the repo** — `.pi/extensions/newsletter.ts` was
+  gitignored and untracked, so it existed only in the working copy; it is now
+  versioned (see the README's pi integration section).
 - **`html` source** — follows sites that publish no feed (e.g. Anthropic
   Engineering) by reading their listing page. `src/sources/html.ts` is a
   dependency-free extractor over a small CSS subset (`tag`, `*`, `.class`,

@@ -115,6 +115,23 @@ endpoint or model per-run with `--provider`, or in config with `baseUrl` /
 `model`. If no key is found or the API fails, the edition is still produced
 with titles and links only.
 
+## pi integration (optional)
+
+`.pi/extensions/newsletter.ts` exposes the app to a [pi](https://github.com/badlogic/pi-mono)
+agent as tools — `newsletter_build`, `newsletter_feed_check`,
+`newsletter_resolve_channel`, `newsletter_feeds`, `newsletter_status` — plus a
+`/newsletter` dry-run command. The CLI needs none of this; the extension is a
+convenience wrapper that imports the compiled modules from `dist/`, rebuilding
+them when `src/` is newer.
+
+Two caveats if you use it:
+
+- `typebox` and `@earendil-works/pi-coding-agent` come from pi at runtime and
+  are deliberately not in `package.json`, so the extension can't be typechecked
+  after a plain `npm install` without pi installed.
+- It reads `config.yaml` and `.env` from the project root at call time; neither
+  is tracked.
+
 ## Scheduling (later)
 
 A cron entry like this runs the build every morning at 9:
@@ -139,6 +156,9 @@ src/
   render/            # Markdown edition + optional HTML
   util/              # dates, run lock, logger
 tests/               # vitest unit tests
+
+.pi/
+  extensions/newsletter.ts  # optional pi agent tools (see above)
 
 config.yaml          # your watchlist + settings   — local, via `init`
 .env                 # API keys                    — local, via .env.example

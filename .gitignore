@@ -19,7 +19,10 @@ config.yaml
 
 # editor and tooling local settings
 .claude/settings.local.json
-.pi/
+
+# pi runtime junk is local; the project's extensions are source
+.pi/*
+!.pi/extensions/
 *.tmp
 *.tmp.*
 .pytest_cache/
